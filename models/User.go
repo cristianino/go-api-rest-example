@@ -2,7 +2,8 @@ package models
 
 import (
 	"fmt"
-	"gomysql/db"
+
+	"github.com/cristianino/go-api-rest-example/db"
 )
 
 type User struct {
