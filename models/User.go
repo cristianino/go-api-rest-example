@@ -7,11 +7,11 @@ import (
 )
 
 type User struct {
-	Id       int64
-	Name     string
-	Username string
-	Email    string
-	Password string
+	Id       int64  `json:"id"`
+	Name     string `json:"name"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type Users []User

@@ -19,7 +19,6 @@ func Connect() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Conexión exitosa.")
 }
 
 // Close conection
