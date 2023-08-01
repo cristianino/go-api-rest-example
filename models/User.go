@@ -47,10 +47,15 @@ func CreateUser(name, username, email, password string) *User {
 }
 
 // Insertar Registro
-func (user *User) Insert() {
+func (user *User) Insert() error {
 	sql := "INSERT " + UserNameTable + " SET name=?, username=?, email=?, password=?"
-	result, _ := db.Exec(sql, user.Name, user.Username, user.Email, user.Password)
+	result, err := db.Exec(sql, user.Name, user.Username, user.Email, user.Password)
+
+	if err != nil {
+		return err
+	}
 	user.Id, _ = result.LastInsertId()
+	return nil
 }
 
 func (user *User) Save() {
@@ -74,11 +79,15 @@ func (user *User) Delete() {
 }
 
 // List
-func ListUser() Users {
+func ListUser() (Users, error) {
 	query := "SELECT id, name, username, email FROM " + UserNameTable
 	users := Users{}
 
-	rows, _ := db.Query(query)
+	rows, err := db.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		user := User{}
@@ -86,17 +95,21 @@ func ListUser() Users {
 		users = append(users, user)
 	}
 
-	return users
+	return users, nil
 }
 
 // get user
-func GetUser(id int) *User {
+func GetUser(id int) (*User, error) {
 	user := User{}
 	query := fmt.Sprintf("SELECT id, name, username, email FROM %s WHERE id=%d LIMIT 1000", UserNameTable, id)
-	rows, _ := db.Query(query)
+	rows, err := db.Query(query)
+
+	if err != nil {
+		return nil, err
+	}
 
 	for rows.Next() {
 		rows.Scan(&user.Id, &user.Email, &user.Name, &user.Username)
 	}
-	return &user
+	return &user, nil
 }

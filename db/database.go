@@ -64,6 +64,8 @@ func Ping() {
 
 // Polimorfismo de Exec
 func Exec(query string, args ...interface{}) (sql.Result, error) {
+	Connect()
+	defer Close()
 	res, err := db.Exec(query, args...)
 
 	if err != nil {
@@ -74,6 +76,8 @@ func Exec(query string, args ...interface{}) (sql.Result, error) {
 
 // Polimorfismo de Query
 func Query(query string, args ...any) (*sql.Rows, error) {
+	Connect()
+	defer Close()
 	rows, err := db.Query(query, args...)
 
 	if err != nil {

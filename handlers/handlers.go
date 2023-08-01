@@ -7,15 +7,15 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/cristianino/go-api-rest-example/db"
 	"github.com/cristianino/go-api-rest-example/models"
 	"github.com/gorilla/mux"
 )
 
 func GetUsers(rw http.ResponseWriter, r *http.Request) {
-	db.Connect()
-	defer db.Close()
-	users := models.ListUser()
+	users, err := models.ListUser()
+	if err != nil {
+		log.Println(err)
+	}
 	output, _ := json.Marshal(users)
 	rw.Header().Add("Content-Type", "application/json")
 	fmt.Fprintln(rw, string(output))
@@ -25,10 +25,10 @@ func GetUser(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userID, _ := strconv.Atoi(vars["id"])
 
-	db.Connect()
-	defer db.Close()
-
-	users := models.GetUser(userID)
+	users, err := models.GetUser(userID)
+	if err != nil {
+		log.Println(err)
+	}
 	output, _ := json.Marshal(users)
 
 	rw.Header().Add("Content-Type", "application/json")
@@ -41,8 +41,6 @@ func CreateUser(rw http.ResponseWriter, r *http.Request) {
 	if err := decoder.Decode(&user); err != nil {
 		log.Println(err)
 	} else {
-		db.Connect()
-		defer db.Close()
 		user.Save()
 	}
 	output, _ := json.Marshal(user)
@@ -59,8 +57,6 @@ func EditUser(rw http.ResponseWriter, r *http.Request) {
 	if err := decoder.Decode(&user); err != nil {
 		log.Println(err)
 	} else {
-		db.Connect()
-		defer db.Close()
 		user.Id = int64(userID)
 		user.Update()
 	}
@@ -73,10 +69,10 @@ func DeleteUser(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	userID, _ := strconv.Atoi(vars["id"])
 
-	db.Connect()
-	defer db.Close()
-
-	users := models.GetUser(userID)
+	users, err := models.GetUser(userID)
+	if err != nil {
+		log.Println(err)
+	}
 	users.Delete()
 
 	rw.Header().Add("Content-Type", "application/json")
