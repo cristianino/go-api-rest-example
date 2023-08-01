@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -15,10 +14,9 @@ func GetUsers(rw http.ResponseWriter, r *http.Request) {
 	users, err := models.ListUser()
 	if err != nil {
 		log.Println(err)
+		models.SendNotFound(rw)
 	}
-	output, _ := json.Marshal(users)
-	rw.Header().Add("Content-Type", "application/json")
-	fmt.Fprintln(rw, string(output))
+	models.SendData(rw, users)
 }
 
 func GetUser(rw http.ResponseWriter, r *http.Request) {
@@ -28,11 +26,9 @@ func GetUser(rw http.ResponseWriter, r *http.Request) {
 	users, err := models.GetUser(userID)
 	if err != nil {
 		log.Println(err)
+		models.SendNotFound(rw)
 	}
-	output, _ := json.Marshal(users)
-
-	rw.Header().Add("Content-Type", "application/json")
-	fmt.Fprintln(rw, string(output))
+	models.SendData(rw, users)
 }
 
 func CreateUser(rw http.ResponseWriter, r *http.Request) {
@@ -40,12 +36,10 @@ func CreateUser(rw http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
 		log.Println(err)
-	} else {
-		user.Save()
+		models.SendUnprocessableEntity(rw)
 	}
-	output, _ := json.Marshal(user)
-	rw.Header().Add("Content-Type", "application/json")
-	fmt.Fprintln(rw, string(output))
+	user.Save()
+	models.SendData(rw, user)
 }
 
 func EditUser(rw http.ResponseWriter, r *http.Request) {
@@ -56,13 +50,12 @@ func EditUser(rw http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&user); err != nil {
 		log.Println(err)
-	} else {
-		user.Id = int64(userID)
-		user.Update()
+		models.SendUnprocessableEntity(rw)
 	}
-	output, _ := json.Marshal(user)
-	rw.Header().Add("Content-Type", "application/json")
-	fmt.Fprintln(rw, string(output))
+	user.Id = int64(userID)
+	user.Update()
+
+	models.SendData(rw, user)
 }
 
 func DeleteUser(rw http.ResponseWriter, r *http.Request) {
@@ -72,9 +65,9 @@ func DeleteUser(rw http.ResponseWriter, r *http.Request) {
 	users, err := models.GetUser(userID)
 	if err != nil {
 		log.Println(err)
+		models.SendNotFound(rw)
 	}
 	users.Delete()
 
-	rw.Header().Add("Content-Type", "application/json")
-	fmt.Fprintln(rw, "")
+	models.SendData(rw, "")
 }
