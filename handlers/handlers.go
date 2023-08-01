@@ -12,7 +12,7 @@ import (
 
 func GetUsers(rw http.ResponseWriter, r *http.Request) {
 	users, err := models.ListUser()
-	if err != nil {
+	if err != nil || users != nil {
 		log.Println(err)
 		models.SendNotFound(rw)
 	}
@@ -24,11 +24,13 @@ func GetUser(rw http.ResponseWriter, r *http.Request) {
 	userID, _ := strconv.Atoi(vars["id"])
 
 	users, err := models.GetUser(userID)
-	if err != nil {
+	if err != nil || users != nil {
 		log.Println(err)
 		models.SendNotFound(rw)
+	} else {
+		models.SendData(rw, users)
+
 	}
-	models.SendData(rw, users)
 }
 
 func CreateUser(rw http.ResponseWriter, r *http.Request) {
@@ -51,11 +53,13 @@ func EditUser(rw http.ResponseWriter, r *http.Request) {
 	if err := decoder.Decode(&user); err != nil {
 		log.Println(err)
 		models.SendUnprocessableEntity(rw)
-	}
-	user.Id = int64(userID)
-	user.Update()
+	} else {
+		user.Id = int64(userID)
+		user.Update()
 
-	models.SendData(rw, user)
+		models.SendData(rw, user)
+
+	}
 }
 
 func DeleteUser(rw http.ResponseWriter, r *http.Request) {
